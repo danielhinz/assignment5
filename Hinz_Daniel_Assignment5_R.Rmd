@@ -14,9 +14,6 @@ options(scipen=999)
 ```
 
 
-### 
-
-
 
 ```{r warning=FALSE}
 library(jsonlite)
@@ -27,9 +24,6 @@ setwd("D:/Dokumente/Studium/Master_DataScience/Assignment5")
 
 
 ```
-
-
-###
 
 
 
@@ -95,7 +89,7 @@ for (i in venues) {
   
 
 }
-output_df
+head(output_df)
 
 ```
 ### Interacting with the API advanced
@@ -139,12 +133,136 @@ for (page in 1:48){
     
   }
 }
-output_df_all
+head(output_df_all)
 ```
 
 ### Visualizing the extracted data
 
-```{r warning=FALSE}
+```{r}
+library(ggplot2)
+
+output_df_all <- output_df_all[!(output_df_all$longitude=="no value" | output_df_all$latitude=="no value"),]
+
+
+output_df_all$longitude <- as.numeric(output_df_all$longitude)
+output_df_all$latitude <- as.numeric(output_df_all$latitude)
+
+
+ggplot() +
+  borders("world", "Germany", colour = "black", fill = "grey90") +
+  theme_void() +
+  coord_quickmap() +
+  geom_point(data=output_df_all, aes(longitude, latitude)) +
+  labs(title = "Event locations across Germany",
+       caption = "Source: ticketmaster.com") +
+  theme(title = element_text(size=8, face='bold'),
+        plot.caption = element_text(face = "italic"))
+
+
+```
+
+```{r}
+output_df_all <- output_df_all[(output_df_all$longitude > 5.866 & output_df_all$longitude < 15.042),]
+output_df_all <- output_df_all[(output_df_all$latitude > 47.270 & output_df_all$latitude < 55.059),]
+
+
+ggplot() +
+  borders("world", "Germany", colour = "black", fill = "grey90") +
+  theme_void() +
+  coord_quickmap() +
+  geom_point(data=output_df_all, aes(longitude, latitude)) +
+  labs(title = "Event locations across Germany",
+     caption = "Source: ticketmaster.com") +
+  theme(title = element_text(size=8, face='bold'),
+      plot.caption = element_text(face = "italic"))
+
+
+```
+
+## Event locations in other countries
+
+```{r}
+
+# Lets pick Italy
+# Define output Dataframe with columns that we would like to extract
+output_it <- data.frame(matrix(ncol = 7, nrow = 0))
+colnames(output_it) <- c("name", "city", "postalCode", "address", "url", "longitude", "latitude")
+
+# loop over all pages
+
+response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
+                query = list(apikey = key[1],
+                             countryCode = "IT",
+                             size = 100)) %>% content()
+
+venues <- response$"_embedded"$venues
+
+# iterate over all 100 elements in venues
+for (i in venues) {
+    
+  # initiate output list
+  output_list <- list()
+    
+  # add values to list
+  output_list <- append(output_list, querydict(i,"name"))
+  output_list <- append(output_list, querydict(i,"city","name"))
+  output_list <- append(output_list, querydict(i,"postalCode"))
+  output_list <- append(output_list, querydict(i,"address","line1"))
+  output_list <- append(output_list, querydict(i,"url"))
+  output_list <- append(output_list, querydict(i,"location","longitude"))
+  output_list <- append(output_list, querydict(i,"location","latitude"))
+    
+  # append output list to dataframe
+  output_it[nrow(output_it)+1,] <- output_list
+    
+    
+}
+
+head(output_it)
+```
+
+```{r}
+# remove all na and no value rows in longitude & latitude
+output_it <- output_it[!(output_it$longitude=="no value" | output_it$latitude=="no value"),]
+output_it <- drop_na(output_it, any_of(c("longitude","latitude")))
+
+# transform to numeric
+output_it$longitude <- as.numeric(output_it$longitude)
+output_it$latitude <- as.numeric(output_it$latitude)
+
+# Plot Map of italy including coordinates
+ggplot() +
+  borders("world", "Italy", colour = "black", fill = "grey90") +
+  theme_void() +
+  coord_quickmap() +
+  geom_point(data=output_it, aes(longitude, latitude)) +
+  labs(title = "Event locations across Italy",
+       caption = "Source: ticketmaster.com") +
+  theme(title = element_text(size=8, face='bold'),
+        plot.caption = element_text(face = "italic"))
+
+
+```
+
+
+
+
+```{r}
+
+# remove outlier
+output_it <- output_it[(output_it$longitude > 0 & output_it$longitude > 0),]
+
+
+# plot map of Italy
+ggplot() +
+  borders("world", "Italy", colour = "black", fill = "grey90") +
+  theme_void() +
+  coord_quickmap() +
+  geom_point(data=output_it, aes(longitude, latitude)) +
+  labs(title = "Event locations across Italy",
+     caption = "Source: ticketmaster.com") +
+  theme(title = element_text(size=8, face='bold'),
+      plot.caption = element_text(face = "italic"))
 
 
 ```
