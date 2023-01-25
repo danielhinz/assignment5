@@ -93,8 +93,58 @@ for (i in venues) {
   # append output list to dataframe
   output_df[nrow(output_df)+1,] <- output_list
   
+
 }
+output_df
+
+```
+### Interacting with the API advanced
+
+```{r warning=FALSE}
+
+# Define output Dataframe with columns that we would like to extract
+output_df_all <- data.frame(matrix(ncol = 7, nrow = 0))
+colnames(output_df_all) <- c("name", "city", "postalCode", "address", "url", "longitude", "latitude")
+
+# loop over all pages
+for (page in 1:48){
+  response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
+                  query = list(apikey = key[1],
+                               countryCode = "DE",
+                               page = page,
+                               size = 100)) %>% content()
+ # if the API returns an error, try to query the page again
+  tryCatch({
+    venues <- response$"_embedded"$venues},
+    error = function(e) {page <- page-1})
+  
+  # iterate over all 100 elements in venues
+  for (i in venues) {
+    
+    # initiate output list
+    output_list <- list()
+    
+    # add values to list
+    output_list <- append(output_list, querydict(i,"name"))
+    output_list <- append(output_list, querydict(i,"city","name"))
+    output_list <- append(output_list, querydict(i,"postalCode"))
+    output_list <- append(output_list, querydict(i,"address","line1"))
+    output_list <- append(output_list, querydict(i,"url"))
+    output_list <- append(output_list, querydict(i,"location","longitude"))
+    output_list <- append(output_list, querydict(i,"location","latitude"))
+    
+    # append output list to dataframe
+    output_df_all[nrow(output_df_all)+1,] <- output_list
+    
+    
+  }
+}
+output_df_all
 ```
 
+### Visualizing the extracted data
+
+```{r warning=FALSE}
 
 
+```
