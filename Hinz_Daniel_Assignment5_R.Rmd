@@ -16,14 +16,14 @@ options(scipen=999)
 
 ### 
 
-(1)
+
 
 ```{r warning=FALSE}
 library(jsonlite)
 library(httr)
 library(rlist)
 library(tidyverse)
-setwd("D:/Dokumente/Studium/Master_DataScience/Data Science Project Management/Assignment5")
+setwd("D:/Dokumente/Studium/Master_DataScience/Assignment5")
 
 
 ```
@@ -34,3 +34,18 @@ setwd("D:/Dokumente/Studium/Master_DataScience/Data Science Project Management/A
 
 
 
+```{r warning=FALSE}
+key <- read.table("key.txt", header = FALSE)
+
+response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
+                query = list(apikey = key[1],
+                             countryCode = "DE")) %>% content()
+
+response$page
+
+```
+
+```{r warning=FALSE}
+
+
+```
