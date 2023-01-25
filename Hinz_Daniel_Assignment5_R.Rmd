@@ -46,6 +46,55 @@ response$page
 ```
 
 ```{r warning=FALSE}
+# Function to query the nested dictionary which we receive from the API
+querydict <- function(dict, ...) {
+    
+    #This function needs a dictionary and one or multiple keys. Output is the element stored behind the key or no value
+    #if that element is not present
+      
+  # for some instances we have two keys, if that is the case, query both an get the element
+  keys <- list(...)
+  for (key in keys) {
+    if (!is.null(dict[[key]])) {
+      dict <- dict[[key]]
+    } else {
+  # if that particular entry is not present return no value
 
+        return("no value")
+    }
+  }
+  return(dict)
+}
 
 ```
+
+```{r warning=FALSE}
+# Define output Dataframe with columns that we would like to extract
+output_df <- data.frame(matrix(ncol = 7, nrow = 0))
+colnames(output_df) <- c("name", "city", "postalCode", "address", "url", "longitude", "latitude")
+
+venues <- response$"_embedded"$venues
+
+# loop over all entries in venues
+for (i in venues) {
+  
+  # initiate output list
+  output_list <- list()
+  
+  # add input to output list
+  output_list <- append(output_list, querydict(i,"name"))
+  output_list <- append(output_list, querydict(i,"city","name"))
+  output_list <- append(output_list, querydict(i,"postalCode"))
+  output_list <- append(output_list, querydict(i,"address","line1"))
+  output_list <- append(output_list, querydict(i,"url"))
+  output_list <- append(output_list, querydict(i,"location","longitude"))
+  output_list <- append(output_list, querydict(i,"location","latitude"))
+  
+  # append output list to dataframe
+  output_df[nrow(output_df)+1,] <- output_list
+  
+}
+```
+
+
+
