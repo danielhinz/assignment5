@@ -1,0 +1,36 @@
+---
+title: "Hinz_Daniel_Assignment5_R"
+author: 'Submitted by Daniel Hinz (Student ID: 6302371)'
+date: "25.01.2023"
+output:
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r setup, include = F}
+options(scipen=999)
+```
+
+
+### 
+
+(1)
+
+```{r warning=FALSE}
+library(jsonlite)
+library(httr)
+library(rlist)
+library(tidyverse)
+setwd("D:/Dokumente/Studium/Master_DataScience/Data Science Project Management/Assignment5")
+
+
+```
+
+
+###
+
+
+
+
