@@ -33,7 +33,8 @@ key <- read.table("key.txt", header = FALSE)
 
 response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
                 query = list(apikey = key[1],
-                             countryCode = "DE")) %>% content()
+                             countryCode = "DE",
+                             locale = "*")) %>% content()
 
 response$page
 
@@ -101,12 +102,15 @@ output_df_all <- data.frame(matrix(ncol = 7, nrow = 0))
 colnames(output_df_all) <- c("name", "city", "postalCode", "address", "url", "longitude", "latitude")
 
 # loop over all pages
-for (page in 1:48){
+for (page in 0:26){
   response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
                   query = list(apikey = key[1],
                                countryCode = "DE",
+                               locale = "*",
                                page = page,
-                               size = 100)) %>% content()
+                               size = 500)) %>% content()
+  Sys.sleep(1)
+
  # if the API returns an error, try to query the page again
   tryCatch({
     venues <- response$"_embedded"$venues},
@@ -193,7 +197,8 @@ colnames(output_it) <- c("name", "city", "postalCode", "address", "url", "longit
 response <- GET("https://app.ticketmaster.com/discovery/v2/venues",
                 query = list(apikey = key[1],
                              countryCode = "IT",
-                             size = 100)) %>% content()
+                             locale = "*",
+                             size = 300)) %>% content()
 
 venues <- response$"_embedded"$venues
 
